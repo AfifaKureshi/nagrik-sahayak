@@ -3,10 +3,6 @@ import json
 import google.generativeai as genai
 from PIL import Image
 
-# ---------------- GEMINI CLIENT ----------------
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")
-
 # Image confidence threshold
 CONFIDENCE_THRESHOLD = 70
 
@@ -20,6 +16,9 @@ def process_image(image_np):
     - NEVER generates complaint
     - NEVER rejects citizen input
     """
+
+    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+    model = genai.GenerativeModel("gemini-1.5-flash")
 
     image = Image.fromarray(image_np)
 
