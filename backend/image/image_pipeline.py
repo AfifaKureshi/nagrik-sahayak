@@ -4,7 +4,8 @@ import google.generativeai as genai
 from PIL import Image
 
 # ---------------- GEMINI CLIENT ----------------
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 # Image confidence threshold
 CONFIDENCE_THRESHOLD = 70
@@ -51,10 +52,7 @@ Respond ONLY in valid JSON:
 """
 
     try:
-        response = client.models.generate_content(
-            model="models/gemini-flash-lite-latest",
-            contents=[prompt, image]
-        )
+        response = model.generate_content([prompt, image])
 
         text = response.text.strip()
 

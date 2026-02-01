@@ -1,9 +1,10 @@
 import os
-from google import genai
+import google.generativeai as genai
 from PIL import Image
 
-# Create Gemini client
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# Create Gemini client# ---------------- GEMINI CLIENT ----------------
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 def classify_issue(image_np):
     """
@@ -43,10 +44,7 @@ Choose ONLY ONE category from below and respond with ONLY the category name:
 
     """
 
-    response = client.models.generate_content(
-        model="models/gemini-flash-lite-latest",
-        contents=[prompt, image]
-    )
+    response = model.generate_content([prompt, image])
 
     return response.text.strip()
 

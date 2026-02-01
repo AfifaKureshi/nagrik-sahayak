@@ -1,9 +1,10 @@
 import os
-from google import genai
+import google.generativeai as genai
 from PIL import Image
 
-# Create Gemini client
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+#  Create Gemini client# ---------------- GEMINI CLIENT ----------------
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 def determine_urgency(image_np, issue_type):
     """
@@ -45,9 +46,6 @@ Respond with ONLY ONE word:
 
     """
 
-    response = client.models.generate_content(
-        model="models/gemini-flash-lite-latest",
-        contents=[prompt, image]
-    )
+    response = model.generate_content([prompt, image])
 
     return response.text.strip()

@@ -1,9 +1,11 @@
 import os
 import json
-from google import genai
+import google.generativeai as genai
 from PIL import Image
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+ 
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 def verify_issue(image_np):
     image = Image.fromarray(image_np)
@@ -31,10 +33,8 @@ Respond with ONLY valid JSON (no explanation, no markdown):
 }
 """
 
-    response = client.models.generate_content(
-        model="models/gemini-flash-latest",
-        contents=[prompt, image]
-    )
+    response = model.generate_content([prompt, image])
+
 
     text = response.text.strip()
 
