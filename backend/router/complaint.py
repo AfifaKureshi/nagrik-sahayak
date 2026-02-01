@@ -142,42 +142,32 @@ def is_issue_consistent(voice_issue: str, image_issue: str) -> bool:
 # 🟢 STEP 3: VOICE ONLY
 # =====================================================
 @router.post("/trigger-mic")
-async def trigger_mic(request: Request):
+async def trigger_mic(
+    location_area: str = Form(...), 
+    language: str = Form("hi-IN"), 
+    audio_file: UploadFile = File(...)
+):
+    # 1. Save the incoming audio blob to a temporary file
+    with NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+        content = await audio_file.read()
+        tmp.write(content)
+        tmp_path = tmp.name
+
     try:
-        body = await request.json()
-        location = body.get("location")
-        language = body.get("language", "hi-IN")
-        image_analysis = body.get("image_analysis")
-
-        if not location or not location.get("area"):
-            return {"success": False, "error": "Location is mandatory"}
-
-        raw_text = voice_to_text(language=language)
+        # 2. Process the file using your existing Speech-to-Text logic
+        # Note: Ensure voice_to_text in voice_input.py is updated to accept a file path
+        raw_text = voice_to_text(tmp_path, language=language)
 
         if raw_text in ["Voice not understood", "Speech service not available"]:
             return {"success": False, "error": raw_text}
 
+        # 3. Your existing translation and extraction logic
         if language.startswith("hi"):
             translated_text = translate_hi_to_en_fallback(raw_text)
         else:
             translated_text = raw_text
 
         issue_type = extract_issue_fallback(translated_text)
-
-        if image_analysis:
-            image_issue = image_analysis.get("issue_type")
-            if image_issue and not is_issue_consistent(issue_type, image_issue):
-                return {
-                    "success": False,
-                    "mismatch": True,
-                    "voice_issue": issue_type,
-                    "image_issue": image_issue,
-                    "error": (
-                        f"Your voice describes '{issue_type}', "
-                        f"but the image shows '{image_issue}'. "
-                        f"Please upload a relevant image."
-                    )
-                }
 
         return {
             "success": True,
@@ -187,8 +177,12 @@ async def trigger_mic(request: Request):
         }
 
     except Exception as e:
-        print("❌ trigger-mic error:", e)
+        print(f"❌ trigger-mic error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        # 4. Clean up the temp file
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
 
 
 # =====================================================

@@ -438,71 +438,66 @@
     }
     
     /* ================= MIC BUTTON WITH LOGIN GATE ================= */
-    micBtn.onclick = async () => {
-      if (isProcessing) return;
+    let mediaRecorder;
+let audioChunks = [];
 
-      // 🎯 1. LOGIN CHECK (PRIORITY 1)
-      const userJson = localStorage.getItem('user');
-      const user = userJson ? JSON.parse(userJson) : null;
-      if (!user || !user.name) {
-          alert("Login First");
-          return;
-      }
-    
-      // 🎯 2. LOCATION CHECK (PRIORITY 2)
-      if (!window.selectedLocation) {
-        alert("Please select a location first.");
-        return;
-      }
-    
-      isProcessing = true;
-      micBtn.disabled = true;
-      micBtn.classList.add("is-recording");
-    
-      micStatus.innerText = "Listening (backend mic)...";
-      addLog("🎙 Voice capture started");
-    
-      try {
-        const res = await fetch("https://web-production-e8693.up.railway.app/complaint/trigger-mic", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: window.selectedLocation,
-            language: selectedLanguage,
-            image_analysis: window.imageAnalysis
-          })
-        });
-    
-        const data = await res.json();
-    
-        if (!data.success) {
-          alert(data.error);
-          return;
-        }
-    
-        voiceData = {
-          issue_type: data.issue_type,
-          translated_text: data.translated_text
+micBtn.onclick = async () => {
+    // Basic Login/Location Guards
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) return alert("Please Login First");
+    if (!window.selectedLocation) return alert("Please select a location on the map first.");
+
+    if (micBtn.classList.contains("is-recording")) {
+        // --- STOP RECORDING ---
+        mediaRecorder.stop();
+        micBtn.classList.remove("is-recording");
+        micStatus.innerText = "Processing voice...";
+    } else {
+        // --- START RECORDING ---
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const formData = new FormData();
+            formData.append("audio_file", audioBlob);
+            formData.append("location_area", window.selectedLocation.area);
+            formData.append("language", selectedLanguage);
+
+            addLog("🎙 Sending voice file to AI...");
+            try {
+                const res = await fetch("https://web-production-e8693.up.railway.app/complaint/trigger-mic", {
+                    method: "POST",
+                    body: formData
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    voiceData = { issue_type: data.issue_type, translated_text: data.translated_text };
+                    resultContainer.classList.remove("hidden");
+                    resultBox.value = data.translated_text;
+                    addLog(`✅ Voice captured: ${data.issue_type}`);
+                    checkGenerateReady();
+                    micStatus.innerText = "Voice captured!";
+                } else {
+                    alert(data.error);
+                    micStatus.innerText = "Try again";
+                }
+            } catch (err) {
+                addLog("❌ Connection Error");
+                micStatus.innerText = "Backend Offline";
+            }
         };
-    
-        resultContainer.classList.remove("hidden");
-        resultBox.value = data.translated_text;
-    
-        addLog(`🗣 Voice captured: ${data.issue_type}`);
-        micStatus.innerText = "Voice captured";
-    
-        checkGenerateReady();
-    
-      } catch {
-        addLog("⚠️ Backend offline (voice skipped)");
-        micStatus.innerText = "Backend offline (demo mode)";
-      }
-    
-      micBtn.classList.remove("is-recording");
-      micBtn.disabled = false;
-      isProcessing = false;
-    };
-    
+
+        mediaRecorder.start();
+        micBtn.classList.add("is-recording");
+        micStatus.innerText = "Recording... Tap to stop";
+        addLog("🎙 Recording started...");
+    }
+};
     /* ================= IMAGE UPLOAD ================= */
     imageInput.onchange = async () => {
       const file = imageInput.files[0];

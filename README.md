@@ -24,7 +24,7 @@ Email: SendGrid
 - Email notifications
 
 ## Live Demo
-Frontend: https://your-netlify-link  
+Frontend: https://697f475135d9ca29938f9f9c--visionary-hummingbird-14ab0e.netlify.app/  
 Backend API: https://web-production-e8693.up.railway.app/docs
 
 ## How to Run Locally
