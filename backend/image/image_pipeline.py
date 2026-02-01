@@ -1,6 +1,6 @@
 import os
 import json
-from google import genai
+import google.generativeai as genai
 from PIL import Image
 
 # ---------------- GEMINI CLIENT ----------------
