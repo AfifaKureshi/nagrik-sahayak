@@ -12,3 +12,4 @@ google-generativeai
 SpeechRecognition
 reportlab
 gradio
+psycopg2-binary
