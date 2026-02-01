@@ -139,8 +139,8 @@
         e.preventDefault();
 
         const url = mode === "login"
-          ? "http://127.0.0.1:8000/auth/login"
-          : "http://127.0.0.1:8000/auth/register";
+          ? "https://web-production-e8693.up.railway.app/auth/login"
+          : "https://web-production-e8693.up.railway.app/auth/register";
 
         const payload = mode === "login"
           ? { mobile: mobile.value, password: password.value }

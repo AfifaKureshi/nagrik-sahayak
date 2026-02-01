@@ -463,7 +463,7 @@
       addLog("🎙 Voice capture started");
     
       try {
-        const res = await fetch("http://127.0.0.1:8000/complaint/trigger-mic", {
+        const res = await fetch("https://web-production-e8693.up.railway.app/complaint/trigger-mic", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -525,7 +525,7 @@
     
       try {
         addLog("🧠 Sending image to AI...");
-        const res = await fetch("http://127.0.0.1:8000/complaint/analyze-image", {
+        const res = await fetch("https://web-production-e8693.up.railway.app/complaint/analyze-image", {
           method: "POST",
           body: fd
         });
@@ -573,7 +573,7 @@ marker.on("dragend", async () => {
         try {
             const userId = localStorage.getItem("userId");   // ✅ ADD THIS
 
-const res = await fetch("http://127.0.0.1:8000/complaint/final-generate", {
+const res = await fetch("https://web-production-e8693.up.railway.app/complaint/final-generate", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
@@ -619,7 +619,7 @@ const res = await fetch("http://127.0.0.1:8000/complaint/final-generate", {
           alert("No report to download");
           return;
         }
-        const res = await fetch("http://127.0.0.1:8000/complaint/download-pdf", {
+        const res = await fetch("https://web-production-e8693.up.railway.app/complaint/download-pdf", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ complaint: resultBox.value })
@@ -641,7 +641,7 @@ const res = await fetch("http://127.0.0.1:8000/complaint/final-generate", {
             return;
         }
         addLog("📨 Sending report to municipality...");
-        const res = await fetch("http://127.0.0.1:8000/complaint/submit-email", {
+        const res = await fetch("https://web-production-e8693.up.railway.app/complaint/submit-email", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

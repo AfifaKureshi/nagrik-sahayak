@@ -42,7 +42,7 @@
 
             try {
                 // 3. Fetch stats using the unique userId
-                const response = await fetch(`http://127.0.0.1:8000/dashboard/${userId}`);
+                const response = await fetch(`https://web-production-e8693.up.railway.app/dashboard/${userId}`);
                 const data = await response.json();
 
                 if (response.ok) {
