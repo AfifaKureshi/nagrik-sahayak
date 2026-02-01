@@ -8,9 +8,12 @@ from router.complaint import router as complaint_router
 from router.history import router as history_router
 from router.dashboard import router as dashboard_router   # ✅ ADD THIS
 
-Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI()
+@app.on_event("startup")
+def on_startup():
+    Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,6 +28,7 @@ app.include_router(user_router)
 app.include_router(complaint_router)
 app.include_router(history_router)
 app.include_router(dashboard_router)   # ✅ ADD THIS
+
 
 @app.get("/")
 def root():
