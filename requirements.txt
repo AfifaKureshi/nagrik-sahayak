@@ -13,3 +13,4 @@ SpeechRecognition
 reportlab
 gradio
 psycopg2-binary
+pyaudio
